@@ -7,14 +7,18 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/rs/zerolog"
 )
 
 type handlerWithError func(w http.ResponseWriter, r *http.Request) error
 
 func (fn handlerWithError) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	l := zerolog.Ctx(r.Context())
+
 	err := fn(w, r)
 	if err != nil {
-		log.Println(err)
+		l.Error().Err(err).Msg("unexpected error while processing request")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return
@@ -22,7 +26,9 @@ func (fn handlerWithError) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) error {
-	log.Println("entered indexHandler()")
+	l := zerolog.Ctx(r.Context())
+
+	l.Trace().Msg("entered indexHandler()")
 
 	if r.URL.Path != "/" {
 		log.Printf("path '%s' not found\n", r.URL.Path)
@@ -44,7 +50,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) error {
-	log.Println("entered searchHandler()")
+	l := zerolog.Ctx(r.Context())
+
+	l.Trace().Msg("entered searchHandler()")
 
 	u, err := url.Parse(r.URL.String())
 	if err != nil {
@@ -59,8 +67,12 @@ func searchHandler(w http.ResponseWriter, r *http.Request) error {
 		pageNum = "1"
 	}
 
-	log.Printf(
-		"received incoming search query: '%s', page: '%s'\n",
+	l.UpdateContext(func(c zerolog.Context) zerolog.Context {
+		return c.Str("search_query", searchQuery).Str("page_num", pageNum)
+	})
+
+	l.Info().Msgf(
+		"received incoming search query: '%s', page: '%s'",
 		searchQuery,
 		pageNum,
 	)
@@ -78,6 +90,8 @@ func searchHandler(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+
+	l.Debug().Interface("search_response", searchResponse).Send()
 
 	totalHits := searchResponse.Query.SearchInfo.TotalHits
 
@@ -100,7 +114,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	log.Printf("search query succeeded without errors")
+	l.Trace().Msg("search query succeeded without errors")
 
 	return nil
 }

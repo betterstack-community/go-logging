@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Wikipedia Search Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main>
+      <header class="header">
+        <a href="/">
+          <img class="logo" src="/static/logo.png" alt="Wikipedia Logo" />
+        </a>
+
+        <form action="/search" method="GET" class="search-form">
+          <input
+            placeholder="Type a keyword and press Enter to search"
+            type="search"
+            class="search-input"
+            value="{{ .Query }}"
+            name="q"
+            autofocus
+          />
+        </form>
+      </header>
+
+      <ul class="search-results">
+        {{ if .Results.Query }}
+        <p class="results-info">
+          {{ if (gt .Results.Query.SearchInfo.TotalHits 0)}} About
+          <strong>{{ .Results.Query.SearchInfo.TotalHits }}</strong> results
+          were found. You are on page <strong>{{ .CurrentPage }}</strong> of
+          <strong> {{ .TotalPages }}</strong>. {{ else if and (ne .Query "") (eq
+          .Results.Query.SearchInfo.TotalHits 0) }} No results found for your
+          query: <strong>{{ .Query }}</strong>.
+        </p>
+        {{ end }} {{ end }} {{ range .Results.Query.Search }}
+        <li class="result-item">
+          <h3 class="result-title">
+            <a
+              href="https://en.wikipedia.org?curid={{ .PageID }}"
+              target="_blank"
+              rel="noopener"
+              >{{ .Title }}</a
+            >
+          </h3>
+          <a
+            href="https://en.wikipedia.org?curid={{ .PageID }}"
+            class="result-link"
+            target="_blank"
+            rel="noopener"
+            >https://en.wikipedia.org?curid={{ .PageID }}</a
+          >
+          <span class="result-snippet">{{ htmlSafe .Snippet }}</span><br />
+        </li>
+        {{ end }}
+      </ul>
+      <div class="pagination">
+        {{ if .Results }} {{ if (gt .NextPage 2) }}
+        <a
+          href="/search?q={{ .Query }}&page={{ .PreviousPage }}"
+          class="button previous-page"
+          >Previous</a
+        >
+        {{ end }} {{ if (ne .IsLastPage true) }}
+        <a
+          href="/search?q={{ .Query }}&page={{ .NextPage }}"
+          class="button next-page"
+          >Next</a
+        >
+        {{ end }} {{ end }}
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,8 +1,7 @@
 # Logging in Go
 
 This repository contains examples of
-[Logging with Zerolog](https://github.com/betterstack-community/wikipedia-demo/tree/zerolog)
-and
+[Logging with Zerolog](https://github.com/betterstack-community/wikipedia-demo/tree/zerolog),
 [Logging with Zap](https://github.com/betterstack-community/wikipedia-demo/tree/zap),
 and
 [Logging with Slog](https://github.com/betterstack-community/wikipedia-demo/tree/slog)

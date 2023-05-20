@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -64,6 +65,7 @@ func (s *Search) PreviousPage() int {
 }
 
 func searchWikipedia(
+	ctx context.Context,
 	searchQuery string,
 	pageSize, resultsOffset int,
 ) (*SearchResponse, error) {

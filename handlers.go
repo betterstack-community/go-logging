@@ -44,6 +44,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) error {
+  ctx := r.Context()
+
 	log.Println("entered searchHandler()")
 
 	u, err := url.Parse(r.URL.String())
@@ -74,7 +76,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) error {
 
 	resultsOffset := (nextPage - 1) * pageSize
 
-	searchResponse, err := searchWikipedia(searchQuery, pageSize, resultsOffset)
+	searchResponse, err := searchWikipedia(ctx, searchQuery, pageSize, resultsOffset)
 	if err != nil {
 		return err
 	}

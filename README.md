@@ -35,7 +35,7 @@ git clone https://github.com/betterstack-community/go-logging
 - `cd` into the project folder and switch to the relevant branch:
 
 ```bash
-cd go-loggig
+cd go-logging
 ```
 
 ```bash

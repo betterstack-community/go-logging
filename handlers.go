@@ -100,7 +100,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	log.Printf("search query succeeded without errors")
+	log.Printf("search query succeeded without errors\n")
 
 	return nil
 }

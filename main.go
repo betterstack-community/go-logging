@@ -27,7 +27,7 @@ func main() {
 		"htmlSafe": htmlSafe,
 	}).ParseFS(indexHTML, "templates/index.html")
 	if err != nil {
-		log.Fatalf("failed to initialize HTML templates: %s", err.Error())
+		log.Fatalf("failed to initialize HTML templates: %s\n", err.Error())
 	}
 
 	fs := http.FileServer(http.FS(staticFiles))

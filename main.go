@@ -25,6 +25,7 @@ func htmlSafe(str string) template.HTML {
 
 func main() {
 	l := logger.Get()
+
 	var err error
 
 	tpl, err = template.New("index.html").Funcs(template.FuncMap{

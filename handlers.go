@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"math"
 	"net/http"
 	"net/url"
@@ -32,7 +31,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) error {
 	l.Debug("entered indexHandler()")
 
 	if r.URL.Path != "/" {
-		l.Debug(fmt.Sprintf("path '%s' not found\n", r.URL.Path))
+		l.Sugar().Debugf("path '%s' not found", r.URL.Path)
 		http.NotFound(w, r)
 
 		return nil
@@ -75,12 +74,10 @@ func searchHandler(w http.ResponseWriter, r *http.Request) error {
 		zap.String("page_num", pageNum),
 	)
 
-	l.Info(
-		fmt.Sprintf(
-			"incoming search query '%s' on page '%s'",
-			searchQuery,
-			pageNum,
-		),
+	l.Sugar().Infof(
+		"incoming search query '%s' on page '%s'",
+		searchQuery,
+		pageNum,
 	)
 
 	nextPage, err := strconv.Atoi(pageNum)

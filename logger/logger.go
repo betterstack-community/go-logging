@@ -19,6 +19,8 @@ var once sync.Once
 
 var logger *zap.Logger
 
+// Get initializes a zap.Logger instance if it has not been initialized
+// already and returns the same instance for subsequent calls.
 func Get() *zap.Logger {
 	once.Do(func() {
 		stdout := zapcore.AddSync(os.Stdout)
@@ -69,7 +71,7 @@ func Get() *zap.Logger {
 		}
 
 		// log to multiple destinations (console and file)
-		// extra fields are added to just the
+		// extra fields are added to the JSON output alone
 		core := zapcore.NewTee(
 			zapcore.NewCore(consoleEncoder, stdout, logLevel),
 			zapcore.NewCore(fileEncoder, file, logLevel).

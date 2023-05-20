@@ -92,12 +92,10 @@ func searchWikipedia(
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		l.Debug(
-			fmt.Sprintf(
-				"%d response from Wikipedia: %s\n",
-				resp.StatusCode,
-				string(body),
-			),
+		l.Sugar().Debugf(
+			"%d response from Wikipedia: %s",
+			resp.StatusCode,
+			string(body),
 		)
 
 		return nil, fmt.Errorf(

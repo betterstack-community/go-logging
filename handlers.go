@@ -2,19 +2,24 @@ package main
 
 import (
 	"bytes"
-	"log"
+	"fmt"
 	"math"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/betterstack-community/go-logging/logger"
+	"go.uber.org/zap"
 )
 
 type handlerWithError func(w http.ResponseWriter, r *http.Request) error
 
 func (fn handlerWithError) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	l := logger.FromCtx(r.Context())
+
 	err := fn(w, r)
 	if err != nil {
-		log.Println(err)
+		l.Error("an unexpected error occurred", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return
@@ -22,10 +27,12 @@ func (fn handlerWithError) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) error {
-	log.Println("entered indexHandler()")
+	l := logger.FromCtx(r.Context())
+
+	l.Debug("entered indexHandler()")
 
 	if r.URL.Path != "/" {
-		log.Printf("path '%s' not found\n", r.URL.Path)
+		l.Debug(fmt.Sprintf("path '%s' not found\n", r.URL.Path))
 		http.NotFound(w, r)
 
 		return nil
@@ -44,7 +51,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) error {
-	log.Println("entered searchHandler()")
+	ctx := r.Context()
+
+	l := logger.FromCtx(ctx)
+
+	l.Debug("entered searchHandler()")
 
 	u, err := url.Parse(r.URL.String())
 	if err != nil {
@@ -59,10 +70,17 @@ func searchHandler(w http.ResponseWriter, r *http.Request) error {
 		pageNum = "1"
 	}
 
-	log.Printf(
-		"received incoming search query: '%s', page: '%s'\n",
-		searchQuery,
-		pageNum,
+	l = l.With(
+		zap.String("search_query", searchQuery),
+		zap.String("page_num", pageNum),
+	)
+
+	l.Info(
+		fmt.Sprintf(
+			"incoming search query '%s' on page '%s'",
+			searchQuery,
+			pageNum,
+		),
 	)
 
 	nextPage, err := strconv.Atoi(pageNum)
@@ -74,10 +92,20 @@ func searchHandler(w http.ResponseWriter, r *http.Request) error {
 
 	resultsOffset := (nextPage - 1) * pageSize
 
-	searchResponse, err := searchWikipedia(searchQuery, pageSize, resultsOffset)
+	searchResponse, err := searchWikipedia(
+		ctx,
+		searchQuery,
+		pageSize,
+		resultsOffset,
+	)
 	if err != nil {
 		return err
 	}
+
+	l.Debug(
+		"search response from Wikipedia",
+		zap.Any("search_response", searchResponse),
+	)
 
 	totalHits := searchResponse.Query.SearchInfo.TotalHits
 
@@ -100,7 +128,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	log.Printf("search query succeeded without errors")
+	l.Debug("search query succeeded without errors")
 
 	return nil
 }

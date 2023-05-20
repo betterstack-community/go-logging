@@ -6,6 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/betterstack-community/go-logging/logger"
+	"go.uber.org/zap"
 )
 
 //go:embed static
@@ -21,6 +24,7 @@ func htmlSafe(str string) template.HTML {
 }
 
 func main() {
+	l := logger.Get()
 	var err error
 
 	tpl, err = template.New("index.html").Funcs(template.FuncMap{
@@ -43,7 +47,13 @@ func main() {
 	mux.Handle("/search", handlerWithError(searchHandler))
 	mux.Handle("/", handlerWithError(indexHandler))
 
-	log.Printf("starting application server on port '%s'\n", port)
+	l.Info(
+		"starting application server on port: "+port,
+		zap.String("port", port),
+	)
 
-	log.Fatalln(http.ListenAndServe(":"+port, mux))
+	l.Fatal(
+		"server closed",
+		zap.Error(http.ListenAndServe(":"+port, requestLogger(mux))),
+	)
 }

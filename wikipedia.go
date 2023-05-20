@@ -1,13 +1,15 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 var HTTPClient = http.Client{
@@ -64,9 +66,12 @@ func (s *Search) PreviousPage() int {
 }
 
 func searchWikipedia(
+	ctx context.Context,
 	searchQuery string,
 	pageSize, resultsOffset int,
 ) (*SearchResponse, error) {
+	l := zerolog.Ctx(ctx)
+
 	resp, err := HTTPClient.Get(
 		fmt.Sprintf(
 			"https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=%d&srsearch=%s&sroffset=%d",
@@ -87,7 +92,7 @@ func searchWikipedia(
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf(
+		l.Debug().Msgf(
 			"%d response from Wikipedia: %s\n",
 			resp.StatusCode,
 			string(body),

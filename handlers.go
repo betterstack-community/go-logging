@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"log"
 	"math"
 	"net/http"
 	"net/url"
@@ -31,7 +30,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) error {
 	l.Trace().Msg("entered indexHandler()")
 
 	if r.URL.Path != "/" {
-		log.Printf("path '%s' not found\n", r.URL.Path)
+		l.Trace().Msgf("path '%s' not found\n", r.URL.Path)
 		http.NotFound(w, r)
 
 		return nil
@@ -50,7 +49,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) error {
-	l := zerolog.Ctx(r.Context())
+	ctx := r.Context()
+
+	l := zerolog.Ctx(ctx)
 
 	l.Trace().Msg("entered searchHandler()")
 
@@ -86,7 +87,12 @@ func searchHandler(w http.ResponseWriter, r *http.Request) error {
 
 	resultsOffset := (nextPage - 1) * pageSize
 
-	searchResponse, err := searchWikipedia(searchQuery, pageSize, resultsOffset)
+	searchResponse, err := searchWikipedia(
+		ctx,
+		searchQuery,
+		pageSize,
+		resultsOffset,
+	)
 	if err != nil {
 		return err
 	}

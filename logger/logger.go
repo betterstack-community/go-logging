@@ -1,9 +1,10 @@
 package logger
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"runtime/debug"
-	"strconv"
 	"sync"
 	"time"
 
@@ -23,9 +24,15 @@ func Get() zerolog.Logger {
 		zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 		zerolog.TimeFieldFormat = time.RFC3339Nano
 
-		logLevel, err := strconv.Atoi(os.Getenv("LOG_LEVEL"))
-		if err != nil {
-			logLevel = int(zerolog.InfoLevel) // default to INFO
+		logLevel := zerolog.InfoLevel
+		levelEnv := os.Getenv("LOG_LEVEL")
+		if levelEnv != "" {
+			levelFromEnv, err := zerolog.ParseLevel(levelEnv)
+			if err != nil {
+				log.Println(fmt.Errorf("invalid level from env defaulting to Info: %w", err))
+			}
+
+			logLevel = levelFromEnv
 		}
 
 		// Configure console logging in a human-friendly and colorized format

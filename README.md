@@ -11,7 +11,7 @@ can get started with logging in your own projects.
 Here are the accompanying tutorials for each package:
 
 - [A Complete Guide to Logging in Go with Zerolog](https://betterstack.com/community/guides/logging/zerolog/).
-- [A Comprehensive Guide to Zap Logging in Go](https://betterstack.com/community/guides/logging/zerolog/).
+- [A Comprehensive Guide to Zap Logging in Go](https://betterstack.com/community/guides/logging/go/zap/).
 - [A Comprehensive Guide to Logging in Go with Slog](https://betterstack.com/community/guides/logging/logging-in-go/).
 
 ![Screenshot or GIF of the application in action](screenshot.png)
